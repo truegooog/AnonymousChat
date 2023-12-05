@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anonymous Chat</title>
+    <style>
+        /* Basic styles for the chat window */
+        #chatbox {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow: auto;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Anonymous Chat!</h2>
+    <div id="chatbox"></div>
+    <form onsubmit="sendMessage(event)">
+        <input type="text" id="message" placeholder="Type your message...">
+        <input type="submit" value="Send">
+    </form>
+
+    <script>
+        function sendMessage(event) {
+            event.preventDefault();
+            const message = document.getElementById("message").value;
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "sendMessage.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        document.getElementById("message").value = "";
+                    } else {
+                        console.error("Failed to send message.");
+                    }
+                }
+            };
+            xhr.send("message=" + encodeURIComponent(message));
+        }
+
+        function fetchChat() {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "fetchMessages.php", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        document.getElementById("chatbox").innerHTML = xhr.responseText;
+                    } else {
+                        console.error("Failed to fetch chat messages.");
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Fetch chat messages periodically
+        setInterval(fetchChat, 2000);
+    </script>
+</body>
+</html>
